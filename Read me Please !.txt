@@ -1,0 +1,16 @@
+Project : Airline Pricing analysis
+Tools : R markdown
+Others : ggplot2, plotly
+Software : RStudio
+
+Flying is becoming more and more common in World. 
+It is not a luxury but a necessity for people who want 
+to get to their destination in the shortest possible time. 
+This is possible because flying is much more affordable today. 
+This affordability will continue to drive demand. 
+
+And Numbers tell the story.
+
+
+Here, In this project there is a deep analysis on the factor that effect 
+the pricing of Premium-economy class ticket and Economy class ticket.

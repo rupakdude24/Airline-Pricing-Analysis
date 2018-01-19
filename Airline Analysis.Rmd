@@ -1,0 +1,291 @@
+---
+title: "Airline Data Analysis"
+author: "Roopak Krishna"
+date: "18 January 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Project : Airline Pricing Analysis
+A deep analysis on factors that have significant effect on Price of Premium-economy class ticket and price of economy class ticket.
+
+```{r,warning=FALSE,message=FALSE}
+library(psych)
+airline <- read.csv(paste("SixAirlines.csv",sep=""))
+describe(airline)
+```
+
+```{r,warning=FALSE,message=FALSE}
+library(Amelia)
+missmap(airline)
+```
+
+```{r,warning=FALSE,message=FALSE}
+str(airline)
+```
+
+
+#Number of Airlines that dataset have
+
+```{r,warning=FALSE,message=FALSE}
+library(plotly)
+table(airline$Airline)
+noairline <- plot_ly(
+  x = c("AirFrance", "British", "Delta","Jet","Singapore","Virgin"),
+  y = c(74,175,46,61,40,62),
+  name = "No. of Airline that Dataset have !",
+  type = "bar"
+)
+noairline
+
+```
+
+#Number of Aircraft that dataset have
+
+```{r,warning=FALSE,message=FALSE}
+table(airline$Aircraft)
+```
+
+```{r,warning=FALSE,message=FALSE}
+noaircraft <- plot_ly(
+  x = c("AirBus", "Boeing"),
+  y = c(151,307),
+  name = "No. of Aircraft that Dataset have !",
+  type = "bar"
+)
+noaircraft
+```
+
+#Flight Duration
+
+```{r,warning=FALSE,message=FALSE}
+describe(airline$FlightDuration)
+boxplot(airline$FlightDuration,horizontal = TRUE,ylab=" ",xlab="Flight Duration",
+        main="Boxplot of Fligh tDuration",col="violet")
+```
+
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$FlightDuration, by=list(Airline = airline$Airline), mean)
+```
+
+#Travel Month
+
+```{r,warning=FALSE,message=FALSE}
+library(ggplot2)
+table(airline$TravelMonth)
+ggplot(airline, aes(TravelMonth, fill = Airline)) + geom_bar()+
+labs(title = "Airlines Travel Month", x = "Travel Month", y = "Count of Flights")
+
+```
+
+#IsInternational ?
+
+```{r,warning=FALSE,message=FALSE}
+table(airline$IsInternational)
+ggplot(airline, aes(IsInternational, fill = Airline)) + geom_bar()+
+labs(title = "Is International ?", x = "Is International", y = "Count of Flights")
+
+```
+
+#Seats Economy
+
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$SeatsEconomy, by=list(Airline = airline$Aircraft), mean)
+```
+
+#Seats Premium
+
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$SeatsPremium, by=list(Airline = airline$Aircraft), mean)
+```
+
+#Pitch Economy
+
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$PitchEconomy, by=list(Airline = airline$Aircraft), mean)
+qplot(PitchEconomy, data = airline, facets = Aircraft~Airline)
+```
+
+#Pitch Premium
+
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$PitchPremium, by=list(Airline = airline$Aircraft), mean)
+qplot(PitchPremium, data = airline, facets = Aircraft~Airline)
+```
+
+#Width Economy
+
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$WidthEconomy, by=list(Airline = airline$Aircraft), mean)
+qplot(WidthEconomy, data = airline, facets = Aircraft~Airline)
+```
+
+#Width Premium
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$WidthPremium, by=list(Airline = airline$Aircraft), mean)
+qplot(WidthPremium, data = airline, facets = Aircraft~Airline)
+```
+
+#Price Economy
+
+```{r,warning=FALSE,message=FALSE}
+describe(airline$PriceEconomy)
+boxplot(airline$PricePremium,xlab="Premium Price",horizontal = TRUE,col="violet")
+```
+
+#Price Premium
+
+```{r,warning=FALSE,message=FALSE}
+describe(airline$PricePremium)
+boxplot(airline$PricePremium,xlab="Premium Price",horizontal = TRUE,col="violet")
+```
+
+#Price Premium VS Price Economy
+```{r,warning=FALSE,message=FALSE}
+par(mfrow=c(1, 2))
+hist(airline$PriceEconomy, 
+     main="Price Economy",
+     xlab="Price Economy",
+     ylab="Count",
+     breaks=4,        # more columns 
+     col="red")       # color the bars
+hist(airline$PricePremium, 
+     main="Price Premium",
+     xlab="Price Premium",
+     ylab="Count",
+     breaks=4,        # more columns 
+     col="red")       # color the bars
+par(mfrow=c(1, 1))
+```
+
+#Price Relative
+
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$PriceRelative, by=list(Airline = airline$Airline), mean)
+```
+
+#Seats Total
+
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$SeatsTotal, by=list(Airline = airline$Airline), mean)
+aggregate(airline$SeatsTotal, by=list(Airline = airline$Aircraft), mean)
+
+```
+
+#Pitch Difference
+
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$PitchDifference, by=list(Airline = airline$Airline), mean)
+```
+
+#Width Difference
+
+```{r,warning=FALSE,message=FALSE}
+aggregate(airline$WidthDifference, by=list(Airline = airline$Airline), mean)
+```
+
+#Percent Premium Seat
+
+```{r,warning=FALSE,message=FALSE}
+y = as.data.frame(aggregate(airline$PercentPremiumSeats, by=list(Airline = airline$Airline), mean))
+library(lattice)
+histogram(~x|Airline,data=y)
+qplot(x, data = y, facets = Airline~.)
+y
+```
+
+#Further Analysis
+#ScatterplotMatrix
+
+```{r,warning=FALSE,message=FALSE}
+library(car)
+scatterplotMatrix(formula = ~ FlightDuration + PriceEconomy + PricePremium, cex=0.6,spread=FALSE, smoother.args=list(lty=2),
+                       data=airline, diagonal="histogram",main="Relationship b/w Duration and Price of Economy and Premium ")
+```
+
+```{r,warning=FALSE,message=FALSE}
+scatterplotMatrix(formula = ~PitchPremium + log(PriceRelative) + PitchDifference, cex=0.6,spread=FALSE, smoother.args=list(lty=2),
+                       data=airline, diagonal="histogram",main="Relationship among Pitch Premium, Price Relative and Pitch Differrence")
+```
+
+```{r,warning=FALSE,message=FALSE}
+scatterplotMatrix(formula = ~ PriceEconomy + SeatsEconomy +PricePremium  + SeatsPremium, spread=FALSE,cex=0.6,          smoother.args=list(lty=2),data=airline,diagonal = "histogram",main="Price of Economy,Premium and Seats Economy, Seats Premium")
+```
+
+#Correlations
+
+```{r,warning=FALSE,message=FALSE}
+round(cor(airline[,c(3,6:18)]),2)
+```
+
+```{r,warning=FALSE,message=FALSE}
+round(cor(airline$FlightDuration,airline$PitchPremium),2)
+round(cor(airline$FlightDuration,airline$PitchEconomy),2)
+round(cor(airline$PitchDifference,airline$PriceRelative),2)
+```
+
+```{r,warning=FALSE,message=FALSE}
+library(corrgram)
+corrgram(airline[,c(3,6:18)], main="Corrgram of Airline Variables", lower.panel=panel.shade, 
+         upper.panel=panel.pie, text.panel=panel.txt,order=TRUE)
+```
+
+#Hypothesis testing
+
+Null Hypothesis : There is no significant relation in factors affecting on Prices of Premium economy and economy tickets.
+
+```{r,warning=FALSE,message=FALSE}
+attach(airline)
+cor.test(PricePremium,PriceEconomy)
+```
+
+We can reject the null hypothesis as its p value is less than 0.01.
+
+Null Hypothesis : There is no significant relation between Price relative and PitchDifference
+```{r,warning=FALSE,message=FALSE}
+attach(airline)
+cor.test(PriceRelative,PitchDifference)
+```
+
+We can reject the null hypothesis as its p value is less than 0.01.
+
+#Model 1, response variable is Price Relative
+
+```{r,warning=FALSE,message=FALSE}
+fit <- lm(PriceRelative~.-Airline-Aircraft-TravelMonth-IsInternational,data=airline)
+summary(fit)
+```
+
+Some of the variables are not defined because of singularity means that the variables are not linearly independent. If we remove the variables that are giving NA in the above summary, we will obtain the same result for the rest of the variables. This is because the information given by those variables is already contained in the other variables and thus redundant.
+
+
+```{r,warning=FALSE,message=FALSE}
+fit1 <- lm(PriceRelative~.-Airline-Aircraft-TravelMonth-IsInternational-SeatsTotal-PitchDifference-WidthDifference,data=airline)
+summary(fit1)
+```
+
+#Beta coefficients of the model
+
+```{r,warning=FALSE,message=FALSE}
+fit1$coefficients
+```
+
+
+#Confidence Intervals on the beta coefficients?
+
+```{r }
+# confidence intervals
+confint(fit1)
+```
+
+##Conclusion(Insights)
+Factors affecting the difference in price between an economy ticket and a premium-economy airline ticket :-
+
+1. It is certain that Premium economy tickets provides gretaer seat width(upto 19.5").
+2. More legroom of 38" Seat Pitch in Premium tickets.
+3. Flight Duration is positvely correlated with Price of Economy tickets and Price of Premium tickets.
+4. The contributing factors could be width difference, pitch difference, Flight Duration, Width Premium and Pitch Premium.
+
+
